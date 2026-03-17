@@ -1,3 +1,4 @@
+# Spring 설정(db, jpa 등)
 spring:
   application:
     name: jwt
@@ -17,6 +18,14 @@ spring:
       hibernate:
         format_sql: true
 
+# jwt
+app:
+  jwt:
+    secret:
+      key: dkowefnmvxpwqpoisenmbasdasdjqwdiolihbasdoiawdljvclkjadiujwa
+
+
+# server
 server:
   port: 8080
   servlet:
@@ -24,6 +33,7 @@ server:
       charset: UTF-8
       force: true
 
+# log
 logging:
   level:
     org.hibernate.SQL: debug

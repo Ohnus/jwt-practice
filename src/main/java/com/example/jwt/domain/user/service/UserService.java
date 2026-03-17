@@ -21,7 +21,7 @@ public class UserService {
     @Transactional
     public void joinProcess(UserRequestDto userRequestDto) {
 
-        Boolean isExists = userRepository.existsByUsername(userRequestDto.getUsername());
+        boolean isExists = userRepository.existsByUsername(userRequestDto.getUsername());
 
         if(isExists) {
             throw new IllegalArgumentException("Username is already in use");
