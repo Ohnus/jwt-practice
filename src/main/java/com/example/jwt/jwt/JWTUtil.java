@@ -25,7 +25,7 @@ public class JWTUtil {
     }
 
     // Claim 메서드 중복 제거
-    protected Claims getClaims(String token) {
+    public Claims getClaims(String token) {
         // 토큰을 실제로 파싱(JWT 구조 분해)하여 signature 검증, 만료 검사 및 파싱된 payload 호출
         return jwtParser.parseSignedClaims(token).getPayload();
     }
