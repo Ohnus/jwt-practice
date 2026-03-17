@@ -27,9 +27,6 @@ public class CustomUserDetails implements UserDetails {
     // password 반환
     @Override
     public String getPassword() {
-        System.out.println("CustomUserDetails User name: " + userEntity.getUsername());
-        System.out.println("CustomUserDetails User password: " + userEntity.getPassword());
-        System.out.println("CustomUserDetails User role: " + userEntity.getRole().toString());
         return userEntity.getPassword();
     }
 

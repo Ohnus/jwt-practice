@@ -30,7 +30,7 @@ public class UserService {
         UserEntity userEntity = UserEntity.builder()
                 .username(userRequestDto.getUsername())
                 .password(bCryptPasswordEncoder.encode(userRequestDto.getPassword()))
-                .role(UserRole.ADMIN)
+                .role(UserRole.ROLE_ADMIN)
                 .build();
 
         userRepository.save(userEntity);

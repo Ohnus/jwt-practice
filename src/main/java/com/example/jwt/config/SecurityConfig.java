@@ -1,6 +1,8 @@
 package com.example.jwt.config;
 
 import com.example.jwt.jwt.CustomLoginFilter;
+import com.example.jwt.jwt.JWTFilter;
+import com.example.jwt.jwt.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +23,8 @@ public class SecurityConfig {
 
     // authenticationManager 메서드에서 사용할 AuthenticationConfiguration 객체 생성자 주입
     private final AuthenticationConfiguration authConfiguration;
+    // LoginFilter에서 JWTUtil 사용하기 위해 JWTUtil 주입
+    private final JWTUtil jwtUtil;
 
     // AuthenticationManager는 Spring Security 내부에서 AuthenticationConfiguration를 통해 만드는 객체
     // LoginFilter 등에서 사용하기 위해 Bean으로 등록
@@ -53,8 +57,11 @@ public class SecurityConfig {
                 .requestMatchers("/admin").hasRole("ADMIN")
                 .anyRequest().authenticated());
 
-        // new로 생성자를 만들어서 넣게 된 커스텀 로그인 필터는 AuthenticationManager를 인자로 주입 받음
-        http.addFilterAt(new CustomLoginFilter(authenticationManager()), UsernamePasswordAuthenticationFilter.class);
+        // JWTFilter 추가
+        http.addFilterBefore(new JWTFilter(jwtUtil), CustomLoginFilter.class);
+
+        // new로 생성자를 만들어서 넣게 된 커스텀 로그인 필터는 AuthenticationManager, JWTUtil을 인자로 주입 받음
+        http.addFilterAt(new CustomLoginFilter(authenticationManager(), jwtUtil), UsernamePasswordAuthenticationFilter.class);
 
         // 세션 설정
         http.sessionManagement((session) -> session
