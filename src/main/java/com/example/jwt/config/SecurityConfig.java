@@ -3,7 +3,9 @@ package com.example.jwt.config;
 import com.example.jwt.jwt.CustomLoginFilter;
 import com.example.jwt.jwt.JWTFilter;
 import com.example.jwt.jwt.JWTUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.file.ConfigurationSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +17,12 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Collections;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity(debug = true)
@@ -42,6 +50,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
+        // CORS 설정
+        http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
+
         // CSRF disable
         http.csrf(csrf -> csrf.disable());
 
@@ -68,5 +79,33 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+
+        // 프론트 주소
+        config.setAllowedOrigins(List.of("http://localhost:3000"));
+
+        // 허용 메서드
+        // CORS는 실제 요청 전에 Preflight 요청(OPTIONS) 날리므로 포함 필수
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+
+        // 모든 헤더 허용
+        config.setAllowedHeaders(List.of("*"));
+
+        // 인증정보 포함 (JWT / 쿠키)
+        config.setAllowCredentials(true);
+
+        // 노출할 헤더 (JWT Authorization)
+        // 브라우저는 기본적으로 Authorization 헤더를 JS에서 못 읽으므로 설정
+        config.setExposedHeaders(List.of("Authorization"));
+
+        // 해당 url에 대해 config CORS 정책 사용
+        UrlBasedCorsConfigurationSource src = new UrlBasedCorsConfigurationSource();
+        src.registerCorsConfiguration("/**", config);
+
+        return src;
     }
 }
