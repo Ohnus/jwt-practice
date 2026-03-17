@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 토큰 추출
         String token = authorization.substring(7);
-        System.out.println("JWTFilter token: " + token);
+        System.out.println("JWTFilter Access Token: " + token);
 
         try {
             // 이미 인증된 경우 통과
@@ -46,6 +47,18 @@ public class JWTFilter extends OncePerRequestFilter {
 
             // 만료 및 서명 위조 검사(예외 터질 시 catch 실행)
             Claims claims = jwtUtil.getClaims(token);
+
+            // Access 토큰인지 확인
+            String tokenCategory = claims.get("category").toString();
+            if(!tokenCategory.equals("access")) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=utf-8");
+                PrintWriter writer = response.getWriter();
+                writer.write("Not Access Token");
+                writer.flush();
+
+                return;
+            }
 
             // 유저 정보 추출
             String username = claims.get("username",  String.class);
@@ -59,13 +72,25 @@ public class JWTFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authToken);
 
         } catch (ExpiredJwtException e) {
-            // 만료 토큰, 추후 refresh 확장 가능
+            // response status code
             System.out.println("Token expired");
-            request.setAttribute("exception", "expired token");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            // response body
+            PrintWriter writer = response.getWriter();
+            writer.write("Access Token Expired");
+            writer.flush();
+
+            return;
         } catch (Exception e) {
             // 위조 또는 잘못된 토큰
-            System.out.println("Invalid token");
-            request.setAttribute("exception", "Invalid token");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            PrintWriter writer = response.getWriter();
+            writer.write("Invalid Token");
+            writer.flush();
+
+            return;
         }
 
         // 끝났으면 다음 필터로 패스

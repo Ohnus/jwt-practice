@@ -40,6 +40,11 @@ public class JWTUtil {
         return getClaims(token).get("role", String.class);
     }
 
+    public String getCategory(String token) {
+        // payload에서 category 획득
+        return getClaims(token).get("category", String.class);
+    }
+
     public boolean isExpired(String token) {
         // JWT payload의 exp 값을 현재 시간과 비교하여 만료 여부 확인
         // (단, parseSignedClaims 단계에서 이미 만료 시 ExpiredJwtException 발생 가능)
@@ -47,9 +52,10 @@ public class JWTUtil {
     }
 
     // JWT 생성
-    public String createJwt(String username, String role, Long expiredMs) {
+    public String createJwt(String category, String username, String role, Long expiredMs) {
 
         return Jwts.builder()
+                .claim("category", category)
                 .claim("username", username)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
