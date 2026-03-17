@@ -40,11 +40,13 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) {
 
+        System.out.println("successfulAuthentication");
     }
 
     // 로그인 실패 시 실행하는 메서드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) {
 
+        System.out.println("unsuccessfulAuthentication");
     }
 }

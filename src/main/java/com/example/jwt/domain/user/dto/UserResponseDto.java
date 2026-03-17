@@ -17,7 +17,7 @@ public class UserResponseDto {
         return UserResponseDto.builder()
                 .id(userEntity.getId())
                 .username(userEntity.getUsername())
-                .role(userEntity.getRole().toString())
+                .role(userEntity.getRole().name())
                 .build();
     }
 }
