@@ -29,14 +29,12 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // authorization 체크, 없으면 통과(헤더에 access token 안넣고 보내는 API 요청)
         if(authorization == null || !authorization.startsWith("Bearer ")) {
-            System.out.println("Token null");
             filterChain.doFilter(request, response);
             return;
         }
 
         // 토큰 추출
         String token = authorization.substring(7);
-        System.out.println("JWTFilter Access Token: " + token);
 
         try {
             // 이미 인증된 경우 통과
@@ -73,7 +71,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
         } catch (ExpiredJwtException e) {
             // response status code
-            System.out.println("Token expired");
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
             // response body

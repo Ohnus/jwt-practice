@@ -1,6 +1,5 @@
 package com.example.jwt.jwt;
 
-import com.example.jwt.domain.user.dto.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,6 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import java.util.Date;
+
 @RequiredArgsConstructor
 public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
@@ -20,6 +21,10 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
     // 로그인 성공 시 JWT를 발급하기 위해 JWTUtil 생성자 주입
     private final JWTUtil jwtUtil;
+    // JWTService 주입
+    private final JWTService jwtService;
+    // Refresh 주입
+    private final RefreshService refreshService;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
@@ -49,9 +54,12 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         String accessToken = jwtUtil.createJwt("access", username, role, 5L * 60 * 10);
         String refreshToken = jwtUtil.createJwt("refresh", username, role, 1_000L * 60 * 60 * 24);
 
+        // 기존 Refresh 토큰 삭제 및 새 토큰 DB 저장
+        refreshService.addRefreshEntity(username, refreshToken, 1_000L * 60 * 60 * 24);
+
         // 헤더 응답
         response.setHeader("Authorization", "Bearer " + accessToken);
-        response.addCookie(JWTService.createCookie("refresh", refreshToken));
+        response.addCookie(jwtService.createCookie("refresh", refreshToken));
         response.setStatus(HttpStatus.OK.value());
     }
 
@@ -62,4 +70,5 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         // 로그인 실패 시 401 응답 코드 반환
         response.setStatus(401);
     }
+
 }
