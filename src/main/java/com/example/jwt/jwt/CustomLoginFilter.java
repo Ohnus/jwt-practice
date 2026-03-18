@@ -51,7 +51,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // 헤더 응답
         response.setHeader("Authorization", "Bearer " + accessToken);
-        response.addCookie(createCookie("refresh", refreshToken));
+        response.addCookie(JWTService.createCookie("refresh", refreshToken));
         response.setStatus(HttpStatus.OK.value());
     }
 
@@ -61,17 +61,5 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
         // 로그인 실패 시 401 응답 코드 반환
         response.setStatus(401);
-    }
-
-    // 쿠키 생성 메서드
-    private Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(24*60*60);
-        cookie.setPath("/"); // 쿠키가 적용될 범위 설정
-        // cookie.setSecure(true); // Https일 경우 설정
-        cookie.setHttpOnly(true); // JS로 해당 쿠키에 접근 못하도록 설정
-
-        return cookie;
     }
 }

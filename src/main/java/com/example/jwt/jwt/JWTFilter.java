@@ -27,7 +27,7 @@ public class JWTFilter extends OncePerRequestFilter {
         // request에서 헤더의 Authorization key 추출
         String authorization = request.getHeader("Authorization");
 
-        // authorization 체크, 없으면 통과(비로그인으로 가능한 다른 API 접근하도록)
+        // authorization 체크, 없으면 통과(헤더에 access token 안넣고 보내는 API 요청)
         if(authorization == null || !authorization.startsWith("Bearer ")) {
             System.out.println("Token null");
             filterChain.doFilter(request, response);
